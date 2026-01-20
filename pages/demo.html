@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Demo • ML Prediction</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <script type="module" src="../assets/js/app.js"></script>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">ML Prediction Demo</div>
+      <nav>
+        <a href="../index.html">Home</a>
+        <a class="active" href="./demo.html">Demo</a>
+        <a href="./docs.html">Docs</a>
+        <a href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h1>Interactive Demo</h1>
+      <p class="muted">Enter inputs and run inference in your browser.</p>
+
+      <div id="modelStatus" class="status">Loading model…</div>
+
+      <form id="predictForm" class="grid">
+        <label>
+          Feature 1
+          <input name="f1" type="number" step="any" value="0.2" required />
+        </label>
+        <label>
+          Feature 2
+          <input name="f2" type="number" step="any" value="1.3" required />
+        </label>
+        <label>
+          Feature 3
+          <input name="f3" type="number" step="any" value="-0.7" required />
+        </label>
+        <label>
+          Feature 4
+          <input name="f4" type="number" step="any" value="2.1" required />
+        </label>
+
+        <button class="btn primary" type="submit">Predict</button>
+      </form>
+
+      <div class="result">
+        <div class="result-title">Prediction</div>
+        <pre id="predictionOutput">—</pre>
+      </div>
+
+      <details class="card-lite">
+        <summary>Show model metadata</summary>
+        <pre id="metadataOutput">Loading…</pre>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">Client-side inference with ONNX Runtime Web</div>
+  </footer>
+</body>
+</html>
