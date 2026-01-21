@@ -1,10 +1,15 @@
-import { loadMetadata, loadModel } from "./model.js";
+import { ort, loadMetadata, loadModel } from "./model.js";
 
 let session = null;
 let metadata = null;
 
 function setStatus(msg) {
-  document.getElementById("modelStatus").textContent = msg;
+  const el = document.getElementById("modelStatus");
+  if (el) el.textContent = msg;
+}
+
+function pretty(obj) {
+  return JSON.stringify(obj, null, 2);
 }
 
 function toFloat32(values) {
@@ -12,41 +17,32 @@ function toFloat32(values) {
 }
 
 async function predict(formValues) {
-  // Default: 4 numeric features → shape [1, 4]
-  // Update this to match your model's expected input.
-  const inputName = metadata.input_name || "input";
-  const tensor = new ort.Tensor("float32", toFloat32(formValues), [1, formValues.length]);
+  const inputName = metadata.input_name;
+  const outputName = metadata.output_name;
 
-  const feeds = {};
-  feeds[inputName] = tensor;
+  const data = toFloat32(formValues);
+  const tensor = new ort.Tensor("float32", data, [1, data.length]);
 
+  const feeds = { [inputName]: tensor };
   const results = await session.run(feeds);
 
-  // Default: take first output
-  const outputName = metadata.output_name || Object.keys(results)[0];
   const out = results[outputName].data;
-
   return Array.from(out);
-}
-
-function pretty(obj) {
-  return JSON.stringify(obj, null, 2);
 }
 
 async function init() {
   try {
     setStatus("Loading metadata…");
     metadata = await loadMetadata();
-
     document.getElementById("metadataOutput").textContent = pretty(metadata);
 
-    setStatus("Loading model… (first load can take a few seconds)");
+    setStatus("Loading model…");
     session = await loadModel();
 
     setStatus("Model loaded ✓ Ready to predict");
   } catch (e) {
-    setStatus("Error: " + e.message);
-    console.error(e);
+    console.error("Init failed:", e);
+    setStatus("Error: " + (e?.message ?? String(e)));
   }
 }
 
@@ -56,10 +52,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("predictForm");
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
-    if (!session || !metadata) return;
+
+    if (!session || !metadata) {
+      console.warn("Predict clicked but model not loaded yet.");
+      return;
+    }
 
     const fd = new FormData(form);
-    const values = ["f1","f2","f3","f4"].map(k => fd.get(k));
+    const values = ["f1", "f2", "f3", "f4"].map(k => fd.get(k));
 
     const outEl = document.getElementById("predictionOutput");
     outEl.textContent = "Running…";
@@ -68,8 +68,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const pred = await predict(values);
       outEl.textContent = pretty({ prediction: pred });
     } catch (e) {
-      outEl.textContent = "Error: " + e.message;
-      console.error(e);
+      console.error("Predict failed:", e);
+      outEl.textContent = "Error: " + (e?.message ?? String(e));
     }
   });
 });
