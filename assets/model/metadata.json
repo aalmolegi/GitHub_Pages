@@ -1,13 +1,25 @@
 {
-  "name": "Demo Regression Model",
+  "name": "Demo Regression Model (Synthetic)",
   "task": "regression",
-  "input_name": "input",
-  "output_name": "output",
+  "input_name": "X",
+  "output_name": "variable",
   "features": [
-    {"name": "Feature 1", "type": "float"},
-    {"name": "Feature 2", "type": "float"},
-    {"name": "Feature 3", "type": "float"},
-    {"name": "Feature 4", "type": "float"}
+    {
+      "name": "Feature 1",
+      "type": "float"
+    },
+    {
+      "name": "Feature 2",
+      "type": "float"
+    },
+    {
+      "name": "Feature 3",
+      "type": "float"
+    },
+    {
+      "name": "Feature 4",
+      "type": "float"
+    }
   ],
-  "notes": "Replace model.onnx and update input/output names to match your exported ONNX graph."
+  "notes": "Preprocessing (StandardScaler) is included inside the ONNX."
 }
