@@ -71,3 +71,4 @@ jobs:
 
           to: "abdulrahman.almolegi@gmail.com"
           from: "GitHub Actions <${{ secrets.GMAIL_USERNAME }}>"
+          
