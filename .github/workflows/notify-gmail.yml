@@ -81,7 +81,7 @@ jobs:
           password: ${{ secrets.GMAIL_APP_PASSWORD }}
 
           subject: ${{ steps.build.outputs.subject }}
-          body: ${{ steps.build.outputs.html }}
+          html_body: ${{ steps.build.outputs.html }}
 
           to: "abdulrahman.almolegi@gmail.com"
           from: "GitHub Actions <${{ secrets.GMAIL_USERNAME }}>"
