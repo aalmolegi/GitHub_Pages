@@ -19,40 +19,54 @@ jobs:
           REPO="${{ github.repository }}"
           REPO_URL="https://github.com/${REPO}"
 
+          esc() {
+            # minimal HTML escaping
+            echo "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g'
+          }
+
           SUBJECT=""
-          BODY=""
+          HTML=""
 
           if [ "$EVENT_TYPE" = "push" ]; then
             BRANCH="${{ github.ref_name }}"
             COMMIT_SHA="${{ github.sha }}"
             COMMIT_URL="${REPO_URL}/commit/${COMMIT_SHA}"
-            # head_commit.message is available on push events
-            COMMIT_MSG="${{ github.event.head_commit.message }}"
+            COMMIT_MSG="$(esc "${{ github.event.head_commit.message }}")"
 
             SUBJECT="[GitHub] Push to ${REPO} (${BRANCH})"
-            BODY="Push event\n\nRepo: ${REPO}\nBranch: ${BRANCH}\nBy: ${ACTOR}\n\nCommit: ${COMMIT_SHA}\nMessage: ${COMMIT_MSG}\nLink: ${COMMIT_URL}\n\nRepo: ${REPO_URL}"
+            HTML="<h2>📦 Push Event</h2>
+            <p><b>Repo:</b> <a href='${REPO_URL}'>${REPO}</a><br/>
+            <b>Branch:</b> ${BRANCH}<br/>
+            <b>By:</b> ${ACTOR}</p>
+            <p><b>Commit:</b> <a href='${COMMIT_URL}'>${COMMIT_SHA}</a><br/>
+            <b>Message:</b> ${COMMIT_MSG}</p>"
           elif [ "$EVENT_TYPE" = "pull_request" ]; then
             ACTION="${{ github.event.action }}"
-            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_TITLE="$(esc "${{ github.event.pull_request.title }}")"
             PR_URL="${{ github.event.pull_request.html_url }}"
             PR_NUMBER="${{ github.event.pull_request.number }}"
             BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
             HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
 
             SUBJECT="[GitHub] PR #${PR_NUMBER} ${ACTION} in ${REPO}"
-            BODY="Pull request event (${ACTION})\n\nRepo: ${REPO}\nBy: ${ACTOR}\n\nPR: #${PR_NUMBER}\nTitle: ${PR_TITLE}\nFrom: ${HEAD_BRANCH}\nInto: ${BASE_BRANCH}\nLink: ${PR_URL}\n\nRepo: ${REPO_URL}"
+            HTML="<h2>🔀 Pull Request (${ACTION})</h2>
+            <p><b>Repo:</b> <a href='${REPO_URL}'>${REPO}</a><br/>
+            <b>By:</b> ${ACTOR}</p>
+            <p><b>PR:</b> <a href='${PR_URL}'>#${PR_NUMBER}</a><br/>
+            <b>Title:</b> ${PR_TITLE}<br/>
+            <b>From:</b> ${HEAD_BRANCH}<br/>
+            <b>Into:</b> ${BASE_BRANCH}</p>"
           else
             SUBJECT="[GitHub] Event in ${REPO}"
-            BODY="Event: ${EVENT_TYPE}\nRepo: ${REPO}\nBy: ${ACTOR}\nLink: ${REPO_URL}"
+            HTML="<p>Event: ${EVENT_TYPE}<br/>Repo: <a href='${REPO_URL}'>${REPO}</a><br/>By: ${ACTOR}</p>"
           fi
 
-          # Export for later step
           {
             echo "subject<<EOF"
             echo "$SUBJECT"
             echo "EOF"
-            echo "body<<EOF"
-            echo "$BODY"
+            echo "html<<EOF"
+            echo "$HTML"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -67,8 +81,8 @@ jobs:
           password: ${{ secrets.GMAIL_APP_PASSWORD }}
 
           subject: ${{ steps.build.outputs.subject }}
-          body: ${{ steps.build.outputs.body }}
+          body: ${{ steps.build.outputs.html }}
 
           to: "abdulrahman.almolegi@gmail.com"
           from: "GitHub Actions <${{ secrets.GMAIL_USERNAME }}>"
-          
+
