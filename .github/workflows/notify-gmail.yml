@@ -35,11 +35,11 @@ jobs:
 
             SUBJECT="[GitHub] Push to ${REPO} (${BRANCH})"
             HTML="<h2>📦 Push Event</h2>
-            <p><b>Repo:</b> <a href='${REPO_URL}'>${REPO}</a><br/>
+            <p><b>📁 Repo:</b> <a href='${REPO_URL}'>${REPO}</a><br/>
             <b>Branch:</b> ${BRANCH}<br/>
-            <b>By:</b> ${ACTOR}</p>
+            <b>👤 By:</b> ${ACTOR}</p>
             <p><b>Commit:</b> <a href='${COMMIT_URL}'>${COMMIT_SHA}</a><br/>
-            <b>Message:</b> ${COMMIT_MSG}</p>"
+            <b>📝 Message:</b> ${COMMIT_MSG}</p>"
           elif [ "$EVENT_TYPE" = "pull_request" ]; then
             ACTION="${{ github.event.action }}"
             PR_TITLE="$(esc "${{ github.event.pull_request.title }}")"
